@@ -1,0 +1,121 @@
+import java.util.*;
+ 
+public class Main {
+    static class Pair implements Comparable<Pair> {
+        int first, second, third;
+         
+        // A pair of pairs, first element is going to
+        // store value, second element index of array
+        // and third element index in the array
+        public Pair(int f, int s, int t) {
+            first = f;
+            second = s;
+            third = t;
+        }
+        public int compareTo(Pair p) {
+            return Integer.compare(first, p.first);
+        }
+    }
+ 
+     
+    // This function takes an array of arrays as an
+    // argument and all arrays are assumed to be
+    // sorted
+    // It merges them together and returns the
+    // final sorted output
+    static List<Integer> mergeKArrays(List<List<Integer>> arr) {
+        List<Integer> output = new ArrayList<>();
+ 
+        // Create a min heap with k heap nodes
+        // Every heap node has first element of an array
+        PriorityQueue<Pair> pq = new PriorityQueue<>();
+ 
+        for (int i = 0; i < arr.size(); i++) {
+            pq.add(new Pair(arr.get(i).get(0), i, 0));
+        }
+ 
+ 
+ 
+        // Now one by one get the minimum element
+        // from min heap and replace it with next
+        // element of its array
+        while (!pq.isEmpty()) {
+            Pair curr = pq.poll();
+ 
+     
+     
+            // i ==> Array Number
+            // j ==> Index in the array number
+            int i = curr.second;
+            int j = curr.third;
+ 
+            output.add(curr.first);
+ 
+            // The next element belongs to same array as
+            // current
+            if (j + 1 < arr.get(i).size()) {
+                pq.add(new Pair(arr.get(i).get(j + 1), i, j + 1));
+            }
+        }
+ 
+        return output;
+    }
+ 
+    enum SubarrayType {
+        INCREASING, DECREASING
+    }
+ 
+    // Function to sort the alternating
+    // increasing-decreasing array
+    public static List<Integer> SortKIncDec(final List<Integer> A) {
+         
+         
+        // Decompose the array into a
+        // set of sorted arrays
+        List<List<Integer>> sorted_subarrays = new ArrayList<>();
+        SubarrayType subarray_type = SubarrayType.INCREASING;
+        int start_idx = 0;
+        for (int i = 0; i <= A.size(); i++) {
+             
+            // If the current subarrays ends here
+            if (i == A.size()
+                    || (i > 0 && A.get(i - 1) < A.get(i)
+                            && subarray_type == SubarrayType.DECREASING)
+                    || (i > 0 && A.get(i - 1) >= A.get(i)
+                            && subarray_type == SubarrayType.INCREASING)) {
+     
+                // If the subarray is increasing
+                // then add from the start
+                if (subarray_type == SubarrayType.INCREASING) {
+                    sorted_subarrays.add(A.subList(start_idx, i));
+                     
+                // If the subarray is decreasing
+                // then add from the end
+                } else {
+                    List<Integer> subList = new ArrayList<>(A.subList(start_idx, i));
+                    Collections.reverse(subList);
+                    sorted_subarrays.add(subList);
+                }
+                start_idx = i;
+                subarray_type = (subarray_type == SubarrayType.INCREASING
+                        ? SubarrayType.DECREASING : SubarrayType.INCREASING);
+            }
+        }
+ 
+         
+        // Merge the k sorted arrays`
+        return mergeKArrays(sorted_subarrays);
+    }
+ 
+ 
+    // Driver code
+    public static void main(String[] args) {
+        List<Integer> arr = Arrays.asList(57, 131, 493, 294, 221, 339, 418, 458, 442, 190);
+ 
+        List<Integer> ans = SortKIncDec(arr);
+ 
+        for (int i = 0; i < ans.size(); i++) {
+            System.out.print(ans.get(i) + " ");
+        }
+    }
+}
